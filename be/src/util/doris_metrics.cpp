@@ -32,6 +32,7 @@ DEFINE_COUNTER_METRIC_PROTOTYPE_3ARG(fragment_requests_total, MetricUnit::REQUES
 DEFINE_COUNTER_METRIC_PROTOTYPE_2ARG(fragment_request_duration_us, MetricUnit::MICROSECONDS);
 DEFINE_COUNTER_METRIC_PROTOTYPE_2ARG(query_scan_bytes, MetricUnit::BYTES);
 DEFINE_COUNTER_METRIC_PROTOTYPE_2ARG(query_scan_rows, MetricUnit::ROWS);
+DEFINE_COUNTER_METRIC_PROTOTYPE_2ARG(active_scan_context_count, MetricUnit::ROWS);
 DEFINE_COUNTER_METRIC_PROTOTYPE_2ARG(query_scan_count, MetricUnit::NOUNIT);
 DEFINE_COUNTER_METRIC_PROTOTYPE_5ARG(push_requests_success_total, MetricUnit::REQUESTS, "",
                                      push_requests_total, Labels({{"status", "SUCCESS"}}));
@@ -200,6 +201,7 @@ DorisMetrics::DorisMetrics() : _metric_registry(_s_registry_name) {
     INT_COUNTER_METRIC_REGISTER(_server_metric_entity, fragment_request_duration_us);
     INT_COUNTER_METRIC_REGISTER(_server_metric_entity, query_scan_bytes);
     INT_COUNTER_METRIC_REGISTER(_server_metric_entity, query_scan_rows);
+    INT_COUNTER_METRIC_REGISTER(_server_metric_entity, active_scan_context_count);
 
     INT_COUNTER_METRIC_REGISTER(_server_metric_entity, push_requests_success_total);
     INT_COUNTER_METRIC_REGISTER(_server_metric_entity, push_requests_fail_total);
