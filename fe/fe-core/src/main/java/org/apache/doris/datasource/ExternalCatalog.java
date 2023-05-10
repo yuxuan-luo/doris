@@ -362,10 +362,6 @@ public abstract class ExternalCatalog implements CatalogIf<ExternalDatabase>, Wr
         Map<Long, ExternalDatabase> tmpIdToDb = Maps.newConcurrentMap();
         for (int i = 0; i < log.getRefreshCount(); i++) {
             ExternalDatabase db = getDbForReplay(log.getRefreshDbIds().get(i));
-            //TODO: temp
-            if (db == null) {
-                continue;
-            }
             db.setUnInitialized(invalidCacheInInit);
             tmpDbNameToId.put(db.getFullName(), db.getId());
             tmpIdToDb.put(db.getId(), db);
