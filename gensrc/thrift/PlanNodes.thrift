@@ -43,7 +43,7 @@ enum TPlanNodeType {
   OLAP_REWRITE_NODE, // deprecated
   KUDU_SCAN_NODE, // Deprecated
   BROKER_SCAN_NODE,
-  EMPTY_SET_NODE, 
+  EMPTY_SET_NODE,
   UNION_NODE,
   ES_SCAN_NODE,
   ES_HTTP_SCAN_NODE,
@@ -113,6 +113,7 @@ enum TFileFormatType {
     FORMAT_ORC,
     FORMAT_JSON,
     FORMAT_PROTO,
+    FORMAT_JNI,
 }
 
 // In previous versions, the data compression format and file format were stored together, as TFileFormatType,
@@ -184,8 +185,8 @@ struct TBrokerScanRangeParams {
     1: required i8 column_separator;
     2: required i8 line_delimiter;
 
-    // We construct one line in file to a tuple. And each field of line 
-    // correspond to a slot in this tuple. 
+    // We construct one line in file to a tuple. And each field of line
+    // correspond to a slot in this tuple.
     // src_tuple_id is the tuple id of the input file
     3: required Types.TTupleId src_tuple_id
     // src_slot_ids is the slot_ids of the input file
@@ -203,7 +204,7 @@ struct TBrokerScanRangeParams {
 
     // If partition_ids is set, data that doesn't in this partition will be filtered.
     8: optional list<i64> partition_ids
-    
+
     // This is the mapping of dest slot id and src slot id in load expr
     // It excludes the slot id which has the transform expr
     9: optional map<Types.TSlotId, Types.TSlotId> dest_sid_to_src_sid_without_trans
@@ -232,7 +233,7 @@ struct TEsScanRange {
   1: required list<Types.TNetworkAddress> es_hosts  //  es hosts is used by be scan node to connect to es
   // has to set index and type here, could not set it in scannode
   // because on scan node maybe scan an es alias then it contains one or more indices
-  2: required string index   
+  2: required string index
   3: optional string type
   4: required i32 shard_id
 }
@@ -286,9 +287,23 @@ struct TIcebergFileDesc {
     5: optional Exprs.TExpr file_select_conjunct;
 }
 
+struct TPaimonFileDesc {
+    1: optional binary paimon_split
+    2: optional string paimon_column_ids
+    3: optional string paimon_column_types
+    4: optional string paimon_column_names
+    5: optional string hive_metastore_uris
+    6: optional string warehouse
+    7: optional string db_name
+    8: optional string table_name
+    9: optional string length_byte
+}
+
+
 struct TTableFormatFileDesc {
     1: optional string table_format_type
     2: optional TIcebergFileDesc iceberg_params
+    3: optional TPaimonFileDesc paimon_params
 }
 
 struct TFileScanRangeParams {
@@ -554,7 +569,7 @@ struct TSortInfo {
   4: optional list<Exprs.TExpr> sort_tuple_slot_exprs
 
   // Indicates the nullable info of sort_tuple_slot_exprs is changed after substitute by child's smap
-  5: optional list<bool> slot_exprs_nullability_changed_flags   
+  5: optional list<bool> slot_exprs_nullability_changed_flags
   // Indicates whether topn query using two phase read
   6: optional bool use_two_phase_read
 }
@@ -593,7 +608,7 @@ struct TEqJoinCondition {
   // right-hand side of "<a> = <b>"
   2: required Exprs.TExpr right;
   // operator of equal join
-  3: optional Opcodes.TExprOpcode opcode; 
+  3: optional Opcodes.TExprOpcode opcode;
 }
 
 enum TJoinOp {
@@ -694,7 +709,7 @@ enum TAggregationOp {
   DENSE_RANK,
   ROW_NUMBER,
   LAG,
-  HLL_C, 
+  HLL_C,
   BITMAP_UNION,
   NTILE,
 }
@@ -760,8 +775,8 @@ struct TSortNode {
   // This is the number of rows to skip before returning results
   3: optional i64 offset
 
-  // Indicates whether the imposed limit comes DEFAULT_ORDER_BY_LIMIT.           
-  6: optional bool is_default_limit                                              
+  // Indicates whether the imposed limit comes DEFAULT_ORDER_BY_LIMIT.
+  6: optional bool is_default_limit
   7: optional bool use_topn_opt
 }
 
@@ -931,7 +946,7 @@ struct TBackendResourceProfile {
 
 // The maximum reservation for this plan node in bytes. MAX_INT64 means effectively
 // unlimited.
-2: required i64 max_reservation = 12188490189880;  // no max reservation limit 
+2: required i64 max_reservation = 12188490189880;  // no max reservation limit
 
 // The spillable buffer size in bytes to use for this node, chosen by the planner.
 // Set iff the node uses spillable buffers.
@@ -1037,9 +1052,9 @@ struct TPlanNode {
   14: optional TMergeNode merge_node
   15: optional TExchangeNode exchange_node
   17: optional TMySQLScanNode mysql_scan_node
-  18: optional TOlapScanNode olap_scan_node  
-  19: optional TCsvScanNode csv_scan_node  
-  20: optional TBrokerScanNode broker_scan_node  
+  18: optional TOlapScanNode olap_scan_node
+  19: optional TCsvScanNode csv_scan_node
+  20: optional TBrokerScanNode broker_scan_node
   21: optional TPreAggregationNode pre_agg_node
   22: optional TSchemaScanNode schema_scan_node
   23: optional TMergeJoinNode merge_join_node
