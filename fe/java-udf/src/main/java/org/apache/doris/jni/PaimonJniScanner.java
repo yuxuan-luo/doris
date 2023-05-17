@@ -68,6 +68,7 @@ public class PaimonJniScanner extends JniScanner {
 
     public PaimonJniScanner(int batchSize, Map<String, String> params) {
         metastoreUris = params.get("hive.metastore.uris");
+        LOG.info("MockJniScanner gets hive.metastore.uris:  " + metastoreUris);
         warehouse = params.get("warehouse");
         splitAddress = Long.parseLong(params.get("split_byte"));
         lengthByte = Integer.parseInt(params.get("length_byte"));
@@ -121,6 +122,7 @@ public class PaimonJniScanner extends JniScanner {
         ReadBuilder readBuilder = table.newReadBuilder();
         TableRead read = readBuilder.newRead();
         reader = read.createReader(paimonInputSplit.split());
+        LOG.info("open");
     }
 
     @Override

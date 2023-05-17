@@ -84,6 +84,9 @@ Status PaimonJniReader::get_columns(std::unordered_map<std::string, TypeDescript
 
 Status PaimonJniReader::init_reader(
         std::unordered_map<std::string, ColumnValueRangeType>* colname_to_value_range) {
+    for (auto const& pair : colname_to_value_range) {
+        LOG(INFO) << "Key: " << pair.first << ", Value: " << pair.second << std::endl;
+    }
     _colname_to_value_range = colname_to_value_range;
     RETURN_IF_ERROR(_jni_connector->init(colname_to_value_range));
     return _jni_connector->open(_state, _profile);
