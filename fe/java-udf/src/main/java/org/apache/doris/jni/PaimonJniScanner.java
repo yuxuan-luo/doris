@@ -17,7 +17,6 @@
 
 package org.apache.doris.jni;
 
-import org.apache.doris.jni.utils.OffHeap;
 import org.apache.doris.jni.vec.ColumnType;
 import org.apache.doris.jni.vec.PaimonColumnValue;
 import org.apache.doris.jni.vec.ScanPredicate;
@@ -40,12 +39,12 @@ import org.apache.paimon.options.Options;
 import org.apache.paimon.reader.RecordReader;
 import org.apache.paimon.table.Table;
 import org.apache.paimon.table.source.ReadBuilder;
+import org.apache.paimon.table.source.Split;
 import org.apache.paimon.table.source.TableRead;
 import org.apache.paimon.utils.OffsetRow;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 
@@ -70,15 +69,18 @@ public class PaimonJniScanner extends JniScanner {
         metastoreUris = params.get("hive.metastore.uris");
         LOG.info("MockJniScanner gets hive.metastore.uris:  " + metastoreUris);
         warehouse = params.get("warehouse");
-        splitAddress = Long.parseLong(params.get("split_byte"));
-        lengthByte = Integer.parseInt(params.get("length_byte"));
+        //splitAddress = Long.parseLong(params.get("split_byte"));
+        //lengthByte = Integer.parseInt(params.get("length_byte"));
         dbName = params.get("db_name");
+        LOG.info("MockJniScanner gets db_name:  " + dbName);
         tblName = params.get("table_name");
-        mockRows = Integer.parseInt(params.get("mock_rows"));
+        LOG.info("MockJniScanner gets db_name:  " + tblName);
+        //mockRows = Integer.parseInt(params.get("mock_rows"));
         getCatalog();
         String[] requiredFields = params.get("required_fields").split(",");
         String[] types = params.get("columns_types").split("#");
-        ids = params.get("columns_id").split(",");
+        //ids = params.get("columns_id").split(",");
+        ids = new String[]{"0", "1"};
         ColumnType[] columnTypes = new ColumnType[types.length];
         for (int i = 0; i < types.length; i++) {
             columnTypes[i] = ColumnType.parseType(requiredFields[i], types[i]);
@@ -109,6 +111,7 @@ public class PaimonJniScanner extends JniScanner {
         } catch (IOException | Catalog.TableNotExistException e) {
             e.printStackTrace();
         }
+        /*
         // 拿 []byte 反序列化成 split
         byte[] splitByte = new byte[lengthByte];
         OffHeap.copyMemory(null, splitAddress, splitByte, OffHeap.BYTE_ARRAY_OFFSET, lengthByte);
@@ -119,9 +122,12 @@ public class PaimonJniScanner extends JniScanner {
         } catch (IOException e) {
             e.printStackTrace();
         }
+         */
         ReadBuilder readBuilder = table.newReadBuilder();
+        List<Split> splits = readBuilder.newScan().plan().splits();
         TableRead read = readBuilder.newRead();
-        reader = read.createReader(paimonInputSplit.split());
+        //reader = read.createReader(paimonInputSplit.split());
+        reader = read.createReader(splits);
         LOG.info("open");
     }
 
@@ -141,6 +147,7 @@ public class PaimonJniScanner extends JniScanner {
                     if (record instanceof OffsetRow) {
                         columnValue.setOffsetRow((OffsetRow) record);
                         for (int i = 0; i < ids.length; ++i) {
+                            LOG.info("OffsetRow：" + ((OffsetRow) record).getString(i));
                             columnValue.setIdx(Integer.parseInt(ids[i]));
                             appendData(i, columnValue);
                         }
