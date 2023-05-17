@@ -647,8 +647,10 @@ Status VFileScanner::_get_next_reader() {
             LOG(INFO) << "FORMAT_JNI ";
             _cur_reader = PaimonJniReader::create_unique(_file_slot_descs, _state, _profile, range);
             LOG(INFO) << "FORMAT_JNI,_cur_reader";
-            for (auto const& pair : _colname_to_value_range) {
-                LOG(INFO) << "Key: " << pair.first << ", Value: " << pair.second << std::endl;
+            for (auto& kv : *_colname_to_value_range) {
+                const std::string& column_name = kv.first;
+                const ColumnValueRangeType& col_val_range = kv.second;
+                LOG(INFO) << "FORMAT_JNI column_name" << column_name << "col_val_range" << col_val_range;
             }
             init_status =
                     ((PaimonJniReader*)(_cur_reader.get()))->init_reader(_colname_to_value_range);

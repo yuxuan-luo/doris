@@ -75,6 +75,7 @@ Status JniConnector::open(RuntimeState* state, RuntimeProfile* profile) {
 
 Status JniConnector::init(
         std::unordered_map<std::string, ColumnValueRangeType>* colname_to_value_range) {
+            LOG(INFO) << "FORMAT_JNI JniConnector::init";
     _generate_predicates(colname_to_value_range);
     if (_predicates_length != 0 && _predicates != nullptr) {
         int64_t predicates_address = (int64_t)_predicates.get();
@@ -258,6 +259,7 @@ Status JniConnector::_fill_string_column(MutableColumnPtr& doris_column, size_t 
 
 void JniConnector::_generate_predicates(
         std::unordered_map<std::string, ColumnValueRangeType>* colname_to_value_range) {
+            LOG(INFO) << "FORMAT_JNI JniConnector::_generate_predicates";
     if (colname_to_value_range == nullptr) {
         return;
     }
