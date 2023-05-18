@@ -17,6 +17,7 @@
 
 package org.apache.doris.planner.external.paimon;
 
+import org.apache.doris.analysis.SlotDescriptor;
 import org.apache.doris.analysis.TupleDescriptor;
 import org.apache.doris.catalog.TableIf;
 import org.apache.doris.catalog.external.ExternalTable;
@@ -48,6 +49,7 @@ import org.apache.paimon.types.DataField;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class PaimonScanNode extends FileQueryScanNode {
     private static PaimonSource source = null;
@@ -78,16 +80,18 @@ public class PaimonScanNode extends FileQueryScanNode {
         StringBuilder columnNamesBuilder = new StringBuilder();
         StringBuilder columnTypesBuilder = new StringBuilder();
         StringBuilder columnIdsBuilder = new StringBuilder();
+        Map<String, Integer> paimonFields = ((AbstractFileStoreTable) source.getPaimonTable()).schema().fields()
+                                            .stream().collect(Collectors.toMap(DataField::name, DataField::id));
         boolean isFirst = true;
-        for (DataField field : ((AbstractFileStoreTable) source.getPaimonTable()).schema().fields()) {
+        for (SlotDescriptor slot : source.getDesc().getSlots()) {
             if (!isFirst) {
                 columnNamesBuilder.append(",");
                 columnTypesBuilder.append(",");
                 columnIdsBuilder.append(",");
             }
-            columnNamesBuilder.append(field.name());
-            columnTypesBuilder.append(field.type().toString());
-            columnIdsBuilder.append(field.id());
+            columnNamesBuilder.append(slot.getColumn().getName());
+            columnNamesBuilder.append(slot.getColumn().getType());
+            columnIdsBuilder.append(paimonFields.get(slot.getColumn().getName()));
             isFirst = false;
         }
         fileDesc.setPaimonColumnIds(columnIdsBuilder.toString());

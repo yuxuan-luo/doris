@@ -51,7 +51,7 @@ import java.util.Map;
 public class PaimonJniScanner extends JniScanner {
     private static final Logger LOG = Logger.getLogger(PaimonJniScanner.class);
 
-    private final int mockRows;
+    //private final int mockRows;
     private Catalog catalog;
     private String metastoreUris;
     private String warehouse;
@@ -76,7 +76,7 @@ public class PaimonJniScanner extends JniScanner {
         tblName = params.get("table_name");
         LOG.info("MockJniScanner gets db_name:  " + tblName);
         //mockRows = Integer.parseInt(params.get("mock_rows"));
-        getCatalog();
+        //getCatalog();
         String[] requiredFields = params.get("required_fields").split(",");
         String[] types = params.get("columns_types").split("#");
         //ids = params.get("columns_id").split(",");
