@@ -27,6 +27,7 @@ import org.apache.doris.common.DdlException;
 import org.apache.doris.common.FeConstants;
 import org.apache.doris.common.MetaNotFoundException;
 import org.apache.doris.common.UserException;
+import org.apache.doris.datasource.property.constants.PaimonProperties;
 import org.apache.doris.planner.PlanNodeId;
 import org.apache.doris.planner.external.FileQueryScanNode;
 import org.apache.doris.planner.external.TableFormatType;
@@ -40,6 +41,7 @@ import org.apache.doris.thrift.TPaimonFileDesc;
 import org.apache.doris.thrift.TTableFormatFileDesc;
 
 import avro.shaded.com.google.common.base.Preconditions;
+import org.apache.hadoop.hive.conf.HiveConf;
 import org.apache.paimon.hive.mapred.PaimonInputSplit;
 import org.apache.paimon.table.AbstractFileStoreTable;
 import org.apache.paimon.table.source.DataSplit;
@@ -90,16 +92,20 @@ public class PaimonScanNode extends FileQueryScanNode {
                 columnIdsBuilder.append(",");
             }
             columnNamesBuilder.append(slot.getColumn().getName());
-            columnNamesBuilder.append(slot.getColumn().getType());
+            columnTypesBuilder.append(slot.getColumn().getType());
             columnIdsBuilder.append(paimonFields.get(slot.getColumn().getName()));
             isFirst = false;
         }
         fileDesc.setPaimonColumnIds(columnIdsBuilder.toString());
         fileDesc.setPaimonColumnNames(columnNamesBuilder.toString());
         fileDesc.setPaimonColumnTypes(columnTypesBuilder.toString());
+        fileDesc.setHiveMetastoreUris(source.getCatalog().getCatalogProperty().getProperties()
+                .get(HiveConf.ConfVars.METASTOREURIS.varname));
+        fileDesc.setWarehouse(source.getCatalog().getCatalogProperty().getProperties()
+                .get(PaimonProperties.PAIMON_WAREHOUSE));
+        fileDesc.setDbName(((PaimonExternalTable) source.getTargetTable()).getDbName());
+        fileDesc.setTableName(source.getTargetTable().getName());
         tableFormatFileDesc.setPaimonParams(fileDesc);
-        Map<String, String> map = ((AbstractFileStoreTable) source.getPaimonTable()).schema().options();
-        map.entrySet();
         rangeDesc.setTableFormatParams(tableFormatFileDesc);
     }
 

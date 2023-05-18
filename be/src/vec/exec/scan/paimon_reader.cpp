@@ -42,6 +42,14 @@ PaimonJniReader::PaimonJniReader(const std::vector<SlotDescriptor*>& file_slot_d
     std::ostringstream columns_types;
     std::vector<std::string> column_names;
     int index = 0;
+    LOG(INFO) << "FORMAT_JNI paimon_column_ids:" << range.table_format_params.paimon_params.paimon_column_ids;
+    LOG(INFO) << "FORMAT_JNI paimon_column_types:" << range.table_format_params.paimon_params.paimon_column_types;
+    LOG(INFO) << "FORMAT_JNI paimon_column_names:" << range.table_format_params.paimon_params.paimon_column_names;
+    LOG(INFO) << "FORMAT_JNI hive_metastore_uris:" << range.table_format_params.paimon_params.hive_metastore_uris;
+    LOG(INFO) << "FORMAT_JNI warehouse:" << range.table_format_params.paimon_params.warehouse;
+    LOG(INFO) << "FORMAT_JNI db_name:" << range.table_format_params.paimon_params.db_name;
+    LOG(INFO) << "FORMAT_JNI table_name:" << range.table_format_params.paimon_params.table_name;
+    LOG(INFO) << "FORMAT_JNI paimon_split:" << range.table_format_params.paimon_params.paimon_split;
     for (auto& desc : _file_slot_descs) {
         std::string field = desc->col_name();
         std::string type = JniConnector::get_hive_type(desc->type());
