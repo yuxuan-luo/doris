@@ -53,15 +53,19 @@ PaimonJniReader::PaimonJniReader(const std::vector<SlotDescriptor*>& file_slot_d
     LOG(INFO) << "FORMAT_JNI paimon_split:" << range.table_format_params.paimon_params.paimon_split;
     LOG(INFO) << "FORMAT_JNI length_byte:" << range.table_format_params.paimon_params.length_byte;
     LOG(INFO) << "FORMAT_JNI paimon_split:" << &range.table_format_params.paimon_params.paimon_split;
-    std::map<String, String> params = {{"required_fields", range.table_format_params.paimon_params.paimon_column_names},
-                                       {"columns_types", range.table_format_params.paimon_params.paimon_column_types},
-                                       {"columns_id", range.table_format_params.paimon_params.paimon_column_ids},
-                                       {"hive.metastore.uris", range.table_format_params.paimon_params.hive_metastore_uris},
-                                       {"warehouse", range.table_format_params.paimon_params.warehouse},
-                                       {"db_name", range.table_format_params.paimon_params.db_name},
-                                       {"table_name", range.table_format_params.paimon_params.table_name},
-                                       {"length_byte", range.table_format_params.paimon_params.length_byte},
-                                       {"split_byte", &range.table_format_params.paimon_params.paimon_split}};
+    std::map<String, String> params ;
+    params["required_fields"] = range.table_format_params.paimon_params.paimon_column_names;
+    params["columns_types"] = range.table_format_params.paimon_params.paimon_column_types;
+    params["split_byte"] = to_string(reinterpret_cast<uintptr_t>(&range.table_format_params.paimon_params.paimon_split));
+    // std::map<String, String> params = {{"required_fields", range.table_format_params.paimon_params.paimon_column_names},
+    //                                    {"columns_types", range.table_format_params.paimon_params.paimon_column_types},
+    //                                    {"columns_id", range.table_format_params.paimon_params.paimon_column_ids},
+    //                                    {"hive.metastore.uris", range.table_format_params.paimon_params.hive_metastore_uris},
+    //                                    {"warehouse", range.table_format_params.paimon_params.warehouse},
+    //                                    {"db_name", range.table_format_params.paimon_params.db_name},
+    //                                    {"table_name", range.table_format_params.paimon_params.table_name},
+    //                                    {"length_byte", range.table_format_params.paimon_params.length_byte},
+    //                                    {"split_byte", &range.table_format_params.paimon_params.paimon_split}};
     _jni_connector = std::make_unique<JniConnector>("org/apache/doris/jni/PaimonJniScanner", params,
                                                     column_names);
 }
