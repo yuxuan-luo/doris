@@ -60,11 +60,11 @@ under the License.
             <artifactId>hudi-hadoop-mr</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.paimon</groupId>
-            <artifactId>paimon-common</artifactId>
-            <version>${paimon.version}</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.apache.paimon</groupId>-->
+<!--            <artifactId>paimon-common</artifactId>-->
+<!--            <version>${paimon.version}</version>-->
+<!--        </dependency>-->
 
         <dependency>
             <groupId>org.apache.paimon</groupId>
