@@ -51,7 +51,7 @@ PaimonJniReader::PaimonJniReader(const std::vector<SlotDescriptor*>& file_slot_d
     LOG(INFO) << "FORMAT_JNI db_name:" << range.table_format_params.paimon_params.db_name;
     LOG(INFO) << "FORMAT_JNI table_name:" << range.table_format_params.paimon_params.table_name;
     LOG(INFO) << "FORMAT_JNI paimon_split:" << range.table_format_params.paimon_params.paimon_split;
-    LOG(INFO) << "FORMAT_JNI lengthByte:" << range.table_format_params.paimon_params.lengthByte;
+    LOG(INFO) << "FORMAT_JNI length_byte:" << range.table_format_params.paimon_params.length_byte;
     LOG(INFO) << "FORMAT_JNI paimon_split:" << &range.table_format_params.paimon_params.paimon_split;
     std::map<String, String> params = {{"required_fields", range.table_format_params.paimon_params.paimon_column_names},
                                        {"columns_types", range.table_format_params.paimon_params.paimon_column_types},
