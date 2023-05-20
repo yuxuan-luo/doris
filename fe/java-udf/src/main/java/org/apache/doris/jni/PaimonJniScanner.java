@@ -67,14 +67,22 @@ public class PaimonJniScanner extends JniScanner {
 
     public PaimonJniScanner(int batchSize, Map<String, String> params) {
         metastoreUris = params.get("hive.metastore.uris");
+        LOG.info("metastoreUris:" + metastoreUris);
         warehouse = params.get("warehouse");
-        splitAddress = Long.parseLong(params.get("split_byte"));
-        lengthByte = Integer.parseInt(params.get("length_byte"));
+        LOG.info("metastoreUris:" + metastoreUris);
+        //splitAddress = Long.parseLong(params.get("split_byte"));
         dbName = params.get("db_name");
+        LOG.info("db_name:" + dbName);
         tblName = params.get("table_name");
+        LOG.info("table_name:" + tblName);
         String[] requiredFields = params.get("required_fields").split(",");
+        LOG.info("required_fields:" + requiredFields);
         String[] types = params.get("columns_types").split(",");
+        LOG.info("columns_types:" + types);
         ids = params.get("columns_id").split(",");
+        LOG.info("columns_id:" + ids);
+        lengthByte = Integer.parseInt(params.get("length_byte"));
+        LOG.info("lengthByte:" + lengthByte);
         ColumnType[] columnTypes = new ColumnType[types.length];
         for (int i = 0; i < types.length; i++) {
             columnTypes[i] = ColumnType.parseType(requiredFields[i], types[i]);
