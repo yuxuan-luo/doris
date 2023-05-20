@@ -50,11 +50,11 @@ under the License.
             <groupId>org.apache.doris</groupId>
             <artifactId>hive-catalog-shade</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.apache.paimon</groupId>
-            <artifactId>paimon-core</artifactId>
-            <version>${paimon.version}</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.apache.paimon</groupId>-->
+<!--            <artifactId>paimon-core</artifactId>-->
+<!--            <version>${paimon.version}</version>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-common</artifactId>
