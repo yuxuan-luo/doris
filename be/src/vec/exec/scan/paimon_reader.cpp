@@ -38,6 +38,21 @@ namespace doris::vectorized {
 PaimonJniReader::PaimonJniReader(const std::vector<SlotDescriptor*>& file_slot_descs,
                                  RuntimeState* state, RuntimeProfile* profile, const TFileRangeDesc& range)
         : _file_slot_descs(file_slot_descs), _state(state), _profile(profile) {
+    std::vector<std::string> column_names;
+    for (auto& desc : _file_slot_descs) {
+        std::string field = desc->col_name();
+        column_names.emplace_back(field);
+    }
+    LOG(INFO) << "FORMAT_JNI paimon_column_ids:" << range.table_format_params.paimon_params.paimon_column_ids;
+    LOG(INFO) << "FORMAT_JNI paimon_column_types:" << range.table_format_params.paimon_params.paimon_column_types;
+    LOG(INFO) << "FORMAT_JNI paimon_column_names:" << range.table_format_params.paimon_params.paimon_column_names;
+    LOG(INFO) << "FORMAT_JNI hive_metastore_uris:" << range.table_format_params.paimon_params.hive_metastore_uris;
+    LOG(INFO) << "FORMAT_JNI warehouse:" << range.table_format_params.paimon_params.warehouse;
+    LOG(INFO) << "FORMAT_JNI db_name:" << range.table_format_params.paimon_params.db_name;
+    LOG(INFO) << "FORMAT_JNI table_name:" << range.table_format_params.paimon_params.table_name;
+    LOG(INFO) << "FORMAT_JNI paimon_split:" << range.table_format_params.paimon_params.paimon_split;
+    LOG(INFO) << "FORMAT_JNI lengthByte:" << range.table_format_params.paimon_params.lengthByte;
+    LOG(INFO) << "FORMAT_JNI paimon_split:" << &range.table_format_params.paimon_params.paimon_split;
     std::map<String, String> params = {{"required_fields", range.table_format_params.paimon_params.paimon_column_names},
                                        {"columns_types", range.table_format_params.paimon_params.paimon_column_types},
                                        {"columns_id", range.table_format_params.paimon_params.paimon_column_ids},
