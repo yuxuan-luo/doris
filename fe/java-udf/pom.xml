@@ -55,6 +55,10 @@ under the License.
             <artifactId>paimon-core</artifactId>
             <version>${paimon.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-common</artifactId>
+        </dependency>
 <!--        <dependency>-->
 <!--            <groupId>org.apache.hudi</groupId>-->
 <!--            <artifactId>hudi-hadoop-mr</artifactId>-->
