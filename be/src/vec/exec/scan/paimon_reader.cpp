@@ -53,7 +53,7 @@ PaimonJniReader::PaimonJniReader(const std::vector<SlotDescriptor*>& file_slot_d
     LOG(INFO) << "FORMAT_JNI paimon_split:" << range.table_format_params.paimon_params.paimon_split;
     LOG(INFO) << "FORMAT_JNI length_byte:" << range.table_format_params.paimon_params.length_byte;
     LOG(INFO) << "FORMAT_JNI paimon_split:" << &range.table_format_params.paimon_params.paimon_split;
-    LOG(INFO) << "FORMAT_JNI paimon_split:" << to_string(reinterpret_cast<int64_t>(&range.table_format_params.paimon_params.paimon_split));
+    LOG(INFO) << "FORMAT_JNI paimon_split:" << to_string(reinterpret_cast<uintptr_t>(&range.table_format_params.paimon_params.paimon_split));
     std::map<String, String> params ;
     params["required_fields"] = range.table_format_params.paimon_params.paimon_column_names;
     params["columns_types"] = range.table_format_params.paimon_params.paimon_column_types;
@@ -63,7 +63,7 @@ PaimonJniReader::PaimonJniReader(const std::vector<SlotDescriptor*>& file_slot_d
     params["db_name"] = range.table_format_params.paimon_params.db_name;
     params["table_name"] = range.table_format_params.paimon_params.table_name;
     params["length_byte"] = range.table_format_params.paimon_params.length_byte;
-    params["split_byte"] = to_string(reinterpret_cast<int64_t>(&range.table_format_params.paimon_params.paimon_split));
+    params["split_byte"] = to_string(reinterpret_cast<uintptr_t>(&range.table_format_params.paimon_params.paimon_split));
     // std::map<String, String> params = {{"required_fields", range.table_format_params.paimon_params.paimon_column_names},
     //                                    {"columns_types", range.table_format_params.paimon_params.paimon_column_types},
     //                                    {"columns_id", range.table_format_params.paimon_params.paimon_column_ids},

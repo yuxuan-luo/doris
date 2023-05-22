@@ -22,6 +22,7 @@ import org.apache.doris.analysis.TupleDescriptor;
 import org.apache.doris.catalog.TableIf;
 import org.apache.doris.catalog.external.ExternalTable;
 import org.apache.doris.catalog.external.PaimonExternalTable;
+import org.apache.doris.clone.DynamicPartitionScheduler;
 import org.apache.doris.common.AnalysisException;
 import org.apache.doris.common.DdlException;
 import org.apache.doris.common.FeConstants;
@@ -42,18 +43,30 @@ import org.apache.doris.thrift.TTableFormatFileDesc;
 
 import avro.shaded.com.google.common.base.Preconditions;
 import org.apache.hadoop.hive.conf.HiveConf;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.paimon.data.InternalRow;
 import org.apache.paimon.hive.mapred.PaimonInputSplit;
+import org.apache.paimon.reader.RecordReader;
 import org.apache.paimon.table.AbstractFileStoreTable;
 import org.apache.paimon.table.source.DataSplit;
 import org.apache.paimon.table.source.ReadBuilder;
+import org.apache.paimon.table.source.TableRead;
 import org.apache.paimon.types.DataField;
+import org.apache.paimon.utils.OffsetRow;
 
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 public class PaimonScanNode extends FileQueryScanNode {
+    private static final Logger LOG = LogManager.getLogger(PaimonScanNode.class);
+
     private static PaimonSource source = null;
 
     public PaimonScanNode(PlanNodeId id, TupleDescriptor desc, boolean needCheckColumnPriv) {
@@ -79,6 +92,48 @@ public class PaimonScanNode extends FileQueryScanNode {
         tableFormatFileDesc.setTableFormatType(paimonSplit.getTableFormatType().value());
         TPaimonFileDesc fileDesc = new TPaimonFileDesc();
         fileDesc.setPaimonSplit(paimonSplit.getSerializableSplit());
+        byte[] bb = paimonSplit.getSerializableSplit();
+        LOG.warn("Paimon byte[] bb:" + Arrays.toString(bb));
+        String strbb = new String(bb);
+        LOG.warn("Paimon String strbb:" + strbb);
+        byte[] bt = strbb.getBytes();
+        LOG.warn("Paimon String bt:" + Arrays.toString(bt));
+        if (bb.equals(bt)) {
+            LOG.warn("EEEEE");
+        } else {
+            LOG.warn("NNNEEEEE");
+        }
+        ByteArrayInputStream bais = new ByteArrayInputStream(bt);
+        DataInputStream input = new DataInputStream(bais);
+        PaimonInputSplit actual = new PaimonInputSplit();
+        try {
+            actual.readFields(input);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        ReadBuilder readBuilder = source.getPaimonTable().newReadBuilder();
+        TableRead read1 = readBuilder.newRead();
+        try {
+            RecordReader<InternalRow> reader = read1.createReader(actual.split());
+            RecordReader.RecordIterator batch;
+            while ((batch = reader.readBatch()) != null) {
+                Object record;
+                while ((record = batch.next()) != null) {
+                    if (record instanceof OffsetRow) {
+                        OffsetRow record1 = (OffsetRow) record;
+                        LOG.warn(record1.getInt(0) + "   :0000");
+                        LOG.warn(record1.getString(1) + "   :1111");
+                        LOG.warn("row.getFieldCount(): " + record1.getFieldCount());
+                        LOG.warn("row.getRowKind(): " + record1.getRowKind());
+                    }
+                }
+                batch.releaseBatch();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            LOG.warn("456789");
+        }
         fileDesc.setLengthByte(Integer.toString(paimonSplit.getSerializableSplit().length));
         StringBuilder columnNamesBuilder = new StringBuilder();
         StringBuilder columnTypesBuilder = new StringBuilder();
