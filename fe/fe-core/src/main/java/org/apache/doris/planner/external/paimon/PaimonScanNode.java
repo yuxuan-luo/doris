@@ -22,7 +22,6 @@ import org.apache.doris.analysis.TupleDescriptor;
 import org.apache.doris.catalog.TableIf;
 import org.apache.doris.catalog.external.ExternalTable;
 import org.apache.doris.catalog.external.PaimonExternalTable;
-import org.apache.doris.clone.DynamicPartitionScheduler;
 import org.apache.doris.common.AnalysisException;
 import org.apache.doris.common.DdlException;
 import org.apache.doris.common.FeConstants;
