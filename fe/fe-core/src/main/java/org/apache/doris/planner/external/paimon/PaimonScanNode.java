@@ -100,7 +100,7 @@ public class PaimonScanNode extends FileQueryScanNode {
             LOG.warn("Paimon String strbb:" + strbb);
             byte[] bt = strbb.getBytes(StandardCharsets.ISO_8859_1);
             LOG.warn("Paimon String bt:" + Arrays.toString(bt));
-            if (bb.equals(bt)) {
+            if (Arrays.equals(bb, bt)) {
                 LOG.warn("EEEEE");
             } else {
                 LOG.warn("NNNEEEEE");
