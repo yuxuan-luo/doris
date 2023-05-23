@@ -57,6 +57,7 @@ import org.apache.paimon.utils.OffsetRow;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -91,21 +92,21 @@ public class PaimonScanNode extends FileQueryScanNode {
         tableFormatFileDesc.setTableFormatType(paimonSplit.getTableFormatType().value());
         TPaimonFileDesc fileDesc = new TPaimonFileDesc();
         fileDesc.setPaimonSplit(paimonSplit.getSerializableSplit());
-        byte[] bb = paimonSplit.getSerializableSplit();
-        LOG.warn("Paimon byte[] bb:" + Arrays.toString(bb));
-        String strbb = new String(bb);
-        LOG.warn("Paimon String strbb:" + strbb);
-        byte[] bt = strbb.getBytes();
-        LOG.warn("Paimon String bt:" + Arrays.toString(bt));
-        if (bb.equals(bt)) {
-            LOG.warn("EEEEE");
-        } else {
-            LOG.warn("NNNEEEEE");
-        }
-        ByteArrayInputStream bais = new ByteArrayInputStream(bt);
-        DataInputStream input = new DataInputStream(bais);
         PaimonInputSplit actual = new PaimonInputSplit();
         try {
+            byte[] bb = paimonSplit.getSerializableSplit();
+            LOG.warn("Paimon byte[] bb:" + Arrays.toString(bb));
+            String strbb = new String(bb, StandardCharsets.ISO_8859_1);
+            LOG.warn("Paimon String strbb:" + strbb);
+            byte[] bt = strbb.getBytes(StandardCharsets.ISO_8859_1);
+            LOG.warn("Paimon String bt:" + Arrays.toString(bt));
+            if (bb.equals(bt)) {
+                LOG.warn("EEEEE");
+            } else {
+                LOG.warn("NNNEEEEE");
+            }
+            ByteArrayInputStream bais = new ByteArrayInputStream(bt);
+            DataInputStream input = new DataInputStream(bais);
             actual.readFields(input);
         } catch (IOException e) {
             e.printStackTrace();
