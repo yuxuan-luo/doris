@@ -467,11 +467,6 @@ under the License.
                 <version>${hadoop.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.doris</groupId>
-                <artifactId>hive-catalog-shade</artifactId>
-                <version>${doris.hive.catalog.shade.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.apache.kerby</groupId>
                 <artifactId>kerb-simplekdc</artifactId>
                 <version>${kerby.version}</version>
@@ -1275,6 +1270,11 @@ under the License.
                 <groupId>org.apache.tomcat.embed</groupId>
                 <artifactId>tomcat-embed-core</artifactId>
                 <version>${tomcat-embed-core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.doris</groupId>
+                <artifactId>hive-catalog-shade</artifactId>
+                <version>${doris.hive.catalog.shade.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
