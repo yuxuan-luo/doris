@@ -70,6 +70,7 @@ public class PaimonJniScanner extends JniScanner {
         LOG.info("metastoreUris:" + metastoreUris);
         warehouse = params.get("warehouse");
         LOG.info("metastoreUris:" + metastoreUris);
+        //splitAddress = Long.parseLong(params.get("split_byte"));
         dbName = params.get("db_name");
         LOG.info("db_name:" + dbName);
         tblName = params.get("table_name");
@@ -82,17 +83,6 @@ public class PaimonJniScanner extends JniScanner {
         LOG.info("columns_id:" + ids);
         lengthByte = Integer.parseInt(params.get("length_byte"));
         LOG.info("lengthByte:" + lengthByte);
-        // 拿 []byte 反序列化成 split
-        byte[] splitByte = new byte[lengthByte];
-        LOG.info("splitByte:" + splitByte);
-        splitAddress = Long.parseLong(params.get("split_byte"));
-        LOG.info("splitAddress:" + splitAddress);
-        OffHeap.copyMemory(null, splitAddress, splitByte, OffHeap.BYTE_ARRAY_OFFSET, lengthByte);
-        LOG.info("copyMemory splitByte:" + splitByte);
-        ByteArrayInputStream bais = new ByteArrayInputStream(splitByte);
-        LOG.info("copyMemory ByteArrayInputStream:" + bais);
-        DataInputStream input = new DataInputStream(bais);
-        LOG.info("copyMemory input:" + input);
         ColumnType[] columnTypes = new ColumnType[types.length];
         for (int i = 0; i < types.length; i++) {
             columnTypes[i] = ColumnType.parseType(requiredFields[i], types[i]);
