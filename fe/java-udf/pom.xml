@@ -53,20 +53,18 @@ under the License.
         </dependency>
         <dependency>
             <groupId>org.apache.paimon</groupId>
-            <artifactId>paimon-core</artifactId>
-            <version>${paimon.version}</version>
+            <artifactId>paimon-bundle</artifactId>
+            <version>0.4-SNAPSHOT</version>
         </dependency>
-
-<!--        <dependency>-->
-<!--            <groupId>org.apache.paimon</groupId>-->
-<!--            <artifactId>paimon-common</artifactId>-->
-<!--            <version>${paimon.version}</version>-->
-<!--        </dependency>-->
-
         <dependency>
             <groupId>org.apache.paimon</groupId>
-            <artifactId>paimon-format</artifactId>
-            <version>${paimon.version}</version>
+            <artifactId>paimon-hive-connector-2.3</artifactId>
+            <version>0.4-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <artifactId>hive-common</artifactId>
+            <groupId>org.apache.hive</groupId>
+            <version>2.3.9</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -94,10 +92,6 @@ under the License.
             <groupId>com.clickhouse</groupId>
             <artifactId>clickhouse-jdbc</artifactId>
             <classifier>all</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.doris</groupId>
-            <artifactId>hive-catalog-shade</artifactId>
         </dependency>
     </dependencies>
     <build>
