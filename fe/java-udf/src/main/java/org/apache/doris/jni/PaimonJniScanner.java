@@ -17,7 +17,6 @@
 
 package org.apache.doris.jni;
 
-import org.apache.doris.jni.utils.OffHeap;
 import org.apache.doris.jni.vec.ColumnType;
 import org.apache.doris.jni.vec.PaimonColumnValue;
 import org.apache.doris.jni.vec.ScanPredicate;
@@ -40,12 +39,12 @@ import org.apache.paimon.options.Options;
 import org.apache.paimon.reader.RecordReader;
 import org.apache.paimon.table.Table;
 import org.apache.paimon.table.source.ReadBuilder;
+import org.apache.paimon.table.source.Split;
 import org.apache.paimon.table.source.TableRead;
 import org.apache.paimon.utils.OffsetRow;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 
@@ -101,9 +100,11 @@ public class PaimonJniScanner extends JniScanner {
     @Override
     public void open() throws IOException {
         getCatalog();
+        LOG.info("getCatalog:");
+        /*
         // 拿 []byte 反序列化成 split
         byte[] splitByte = new byte[lengthByte];
-        OffHeap.copyMemory(null, splitAddress, splitByte, OffHeap.BYTE_ARRAY_OFFSET, lengthByte);
+        //OffHeap.copyMemory(null, splitAddress, splitByte, OffHeap.BYTE_ARRAY_OFFSET, lengthByte);
         ByteArrayInputStream bais = new ByteArrayInputStream(splitByte);
         DataInputStream input = new DataInputStream(bais);
         try {
@@ -111,9 +112,13 @@ public class PaimonJniScanner extends JniScanner {
         } catch (IOException e) {
             e.printStackTrace();
         }
+         */
         ReadBuilder readBuilder = table.newReadBuilder();
+        List<Split> splits = readBuilder.newScan().plan().splits();
         TableRead read = readBuilder.newRead();
-        reader = read.createReader(paimonInputSplit.split());
+        reader = read.createReader(splits);
+        LOG.info("splits:" + splits.size());
+        LOG.info("open");
     }
 
     @Override
@@ -132,6 +137,7 @@ public class PaimonJniScanner extends JniScanner {
                     if (record instanceof OffsetRow) {
                         columnValue.setOffsetRow((OffsetRow) record);
                         for (int i = 0; i < ids.length; ++i) {
+                            LOG.info("OffsetRow：" + ((OffsetRow) record).getString(i));
                             columnValue.setIdx(Integer.parseInt(ids[i]));
                             appendData(i, columnValue);
                         }
@@ -176,7 +182,9 @@ public class PaimonJniScanner extends JniScanner {
         CatalogContext context = CatalogContext.create(options);
         try {
             catalog = create(context);
+            LOG.info("catalog:" + catalog.toString());
             table = catalog.getTable(Identifier.create(dbName, tblName));
+            LOG.info("table:" + table.toString());
         } catch (IOException | Catalog.TableNotExistException e) {
             e.printStackTrace();
         }
