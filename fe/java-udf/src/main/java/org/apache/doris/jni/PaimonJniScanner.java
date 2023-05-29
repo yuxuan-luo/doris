@@ -27,6 +27,7 @@ import org.apache.paimon.catalog.Catalog;
 import org.apache.paimon.catalog.CatalogContext;
 import org.apache.paimon.catalog.Identifier;
 import org.apache.paimon.data.InternalRow;
+import org.apache.paimon.data.columnar.ColumnarRow;
 import org.apache.paimon.fs.FileIO;
 import org.apache.paimon.fs.Path;
 import org.apache.paimon.hive.HiveCatalog;
@@ -41,7 +42,6 @@ import org.apache.paimon.table.Table;
 import org.apache.paimon.table.source.ReadBuilder;
 import org.apache.paimon.table.source.Split;
 import org.apache.paimon.table.source.TableRead;
-import org.apache.paimon.utils.OffsetRow;
 
 import java.io.IOException;
 import java.util.List;
@@ -138,11 +138,11 @@ public class PaimonJniScanner extends JniScanner {
             while ((batch = reader.readBatch()) != null) {
                 Object record;
                 while ((record = batch.next()) != null) {
-                    LOG.info("OffsetRow：" + ((OffsetRow) record).getString(0));
+                    LOG.info("OffsetRow：" + ((ColumnarRow) record).getString(0));
                     LOG.info("OffsetRow：ids.length" +  ids.length);
-                    columnValue.setOffsetRow((OffsetRow) record);
+                    columnValue.setOffsetRow((ColumnarRow) record);
                     for (int i = 0; i < ids.length; i++) {
-                        LOG.info("OffsetRow：" + ((OffsetRow) record).getString(i));
+                        LOG.info("OffsetRow：" + ((ColumnarRow) record).getString(i));
                         columnValue.setIdx(Integer.parseInt(ids[i]));
                         appendData(i, columnValue);
                     }
