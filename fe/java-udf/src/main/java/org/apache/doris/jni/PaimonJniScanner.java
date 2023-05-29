@@ -139,6 +139,8 @@ public class PaimonJniScanner extends JniScanner {
                 Object record;
                 while ((record = batch.next()) != null) {
                     if (record instanceof OffsetRow) {
+                        LOG.info("OffsetRow：" + ((OffsetRow) record).getString(0));
+                        LOG.info("OffsetRow：ids.length" +  ids.length);
                         columnValue.setOffsetRow((OffsetRow) record);
                         for (int i = 0; i < ids.length; i++) {
                             LOG.info("OffsetRow：" + ((OffsetRow) record).getString(i));
