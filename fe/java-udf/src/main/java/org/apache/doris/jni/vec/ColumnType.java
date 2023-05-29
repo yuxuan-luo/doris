@@ -17,6 +17,8 @@
 
 package org.apache.doris.jni.vec;
 
+import org.apache.log4j.Logger;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -60,6 +62,8 @@ public class ColumnType {
             this.size = size;
         }
     }
+
+    private static final Logger LOG = Logger.getLogger(ColumnType.class);
 
     private final Type type;
     private final String name;
@@ -230,6 +234,7 @@ public class ColumnType {
 
     public static ColumnType parseType(String columnName, String hiveType) {
         String lowerCaseType = hiveType.toLowerCase();
+        LOG.info("ColumnType parseType: " + lowerCaseType);
         Type type = Type.UNSUPPORTED;
         int length = -1;
         int precision = -1;

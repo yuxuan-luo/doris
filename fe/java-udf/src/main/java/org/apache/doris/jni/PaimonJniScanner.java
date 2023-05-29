@@ -74,10 +74,13 @@ public class PaimonJniScanner extends JniScanner {
         LOG.info("db_name:" + dbName);
         tblName = params.get("table_name");
         LOG.info("table_name:" + tblName);
+        LOG.info("required_fields:" + params.get("required_fields"));
         String[] requiredFields = params.get("required_fields").split(",");
         LOG.info("required_fields:" + requiredFields);
+        LOG.info("columns_types:" + params.get("columns_types"));
         String[] types = params.get("columns_types").split(",");
         LOG.info("columns_types:" + types);
+        LOG.info("columns_id:" + params.get("columns_id"));
         ids = params.get("columns_id").split(",");
         LOG.info("columns_id:" + ids);
         lengthByte = Integer.parseInt(params.get("length_byte"));
@@ -128,6 +131,7 @@ public class PaimonJniScanner extends JniScanner {
 
     @Override
     protected int getNext() throws IOException {
+        LOG.info("getNext：");
         int rows = 0;
         try {
             RecordReader.RecordIterator batch;
@@ -149,6 +153,7 @@ public class PaimonJniScanner extends JniScanner {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        LOG.info("getNext：" + rows);
         return rows;
     }
 

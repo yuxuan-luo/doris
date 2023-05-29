@@ -22,9 +22,12 @@ import org.apache.doris.jni.vec.ColumnValue;
 import org.apache.doris.jni.vec.ScanPredicate;
 import org.apache.doris.jni.vec.VectorTable;
 
+import org.apache.log4j.Logger;
+
 import java.io.IOException;
 
 public abstract class JniScanner {
+    private static final Logger LOG = Logger.getLogger(JniScanner.class);
     protected VectorTable vectorTable;
     protected String[] fields;
     protected ColumnType[] types;
@@ -61,12 +64,14 @@ public abstract class JniScanner {
     }
 
     public long getNextBatchMeta() throws IOException {
+        LOG.info("getNextBatchMeta");
         if (vectorTable == null) {
             vectorTable = new VectorTable(types, fields, predicates, batchSize);
         }
         int numRows;
         try {
             numRows = getNext();
+            LOG.info("getNextBatchMeta numRows :" + numRows);
         } catch (IOException e) {
             releaseTable();
             throw e;

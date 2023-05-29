@@ -17,6 +17,7 @@
 
 package org.apache.doris.jni.vec;
 
+import org.apache.log4j.Logger;
 import org.apache.paimon.utils.OffsetRow;
 
 import java.math.BigDecimal;
@@ -27,6 +28,7 @@ import java.time.ZoneOffset;
 import java.util.List;
 
 public class PaimonColumnValue implements ColumnValue {
+    private static final Logger LOG = Logger.getLogger(PaimonColumnValue.class);
     private int idx;
     private OffsetRow record;
 
