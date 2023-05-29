@@ -140,7 +140,7 @@ public class PaimonJniScanner extends JniScanner {
                 while ((record = batch.next()) != null) {
                     if (record instanceof OffsetRow) {
                         columnValue.setOffsetRow((OffsetRow) record);
-                        for (int i = 0; i < ids.length; ++i) {
+                        for (int i = 0; i < ids.length; i++) {
                             LOG.info("OffsetRow：" + ((OffsetRow) record).getString(i));
                             columnValue.setIdx(Integer.parseInt(ids[i]));
                             appendData(i, columnValue);
