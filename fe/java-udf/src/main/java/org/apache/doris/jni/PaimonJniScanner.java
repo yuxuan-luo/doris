@@ -68,6 +68,7 @@ public class PaimonJniScanner extends JniScanner {
         metastoreUris = params.get("hive.metastore.uris");
         warehouse = params.get("warehouse");
         LOG.info("split:" + params.get("paimon_split"));
+        LOG.info("split:" + params.size());
         split = params.get("paimon_split");
         dbName = params.get("db_name");
         tblName = params.get("table_name");
