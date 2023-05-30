@@ -46,6 +46,7 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Map;
 
 
@@ -66,6 +67,7 @@ public class PaimonJniScanner extends JniScanner {
     public PaimonJniScanner(int batchSize, Map<String, String> params) {
         metastoreUris = params.get("hive.metastore.uris");
         warehouse = params.get("warehouse");
+        LOG.info("split:" + params.get("paimon_split"));
         split = params.get("paimon_split");
         dbName = params.get("db_name");
         tblName = params.get("table_name");
@@ -92,8 +94,10 @@ public class PaimonJniScanner extends JniScanner {
         getCatalog();
         // 拿 []byte 反序列化成 split
         byte[] splitBytes = split.getBytes(StandardCharsets.ISO_8859_1);
+        LOG.info("splitBytes:" + Arrays.toString(splitBytes));
         ByteArrayInputStream bais = new ByteArrayInputStream(splitBytes);
         DataInputStream input = new DataInputStream(bais);
+        LOG.info("input:" + input);
         try {
             paimonInputSplit.readFields(input);
         } catch (IOException e) {
