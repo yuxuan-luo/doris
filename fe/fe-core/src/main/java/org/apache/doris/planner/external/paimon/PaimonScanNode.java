@@ -80,7 +80,8 @@ public class PaimonScanNode extends FileQueryScanNode {
         TTableFormatFileDesc tableFormatFileDesc = new TTableFormatFileDesc();
         tableFormatFileDesc.setTableFormatType(paimonSplit.getTableFormatType().value());
         TPaimonFileDesc fileDesc = new TPaimonFileDesc();
-        fileDesc.setPaimonSplit(new String(paimonSplit.getSerializableSplit(), StandardCharsets.ISO_8859_1));
+        fileDesc.setPaimonSplit(paimonSplit.getSerializableSplit());
+        fileDesc.setLengthByte(Integer.toString(paimonSplit.getSerializableSplit().length));
         StringBuilder columnNamesBuilder = new StringBuilder();
         StringBuilder columnTypesBuilder = new StringBuilder();
         StringBuilder columnIdsBuilder = new StringBuilder();
