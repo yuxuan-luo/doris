@@ -44,6 +44,14 @@ PaimonJniReader::PaimonJniReader(const std::vector<SlotDescriptor*>& file_slot_d
         column_names.emplace_back(field);
     }
     std::map<String, String> params;
+    LOG(INFO) << "FORMAT_JNI paimon_column_ids:" << range.table_format_params.paimon_params.paimon_column_ids;
+    LOG(INFO) << "FORMAT_JNI paimon_column_types:" << range.table_format_params.paimon_params.paimon_column_types;
+    LOG(INFO) << "FORMAT_JNI paimon_column_names:" << range.table_format_params.paimon_params.paimon_column_names;
+    LOG(INFO) << "FORMAT_JNI hive_metastore_uris:" << range.table_format_params.paimon_params.hive_metastore_uris;
+    LOG(INFO) << "FORMAT_JNI warehouse:" << range.table_format_params.paimon_params.warehouse;
+    LOG(INFO) << "FORMAT_JNI db_name:" << range.table_format_params.paimon_params.db_name;
+    LOG(INFO) << "FORMAT_JNI table_name:" << range.table_format_params.paimon_params.table_name;
+    LOG(INFO) << "FORMAT_JNI paimon_split:" << range.table_format_params.paimon_params.paimon_split;
     params["required_fields"] = range.table_format_params.paimon_params.paimon_column_names;
     params["columns_types"] = range.table_format_params.paimon_params.paimon_column_types;
     params["columns_id"] = range.table_format_params.paimon_params.paimon_column_ids;
