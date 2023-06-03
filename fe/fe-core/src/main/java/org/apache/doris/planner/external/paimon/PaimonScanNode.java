@@ -17,6 +17,7 @@
 
 package org.apache.doris.planner.external.paimon;
 
+import org.apache.doris.analysis.Expr;
 import org.apache.doris.analysis.SlotDescriptor;
 import org.apache.doris.analysis.TupleDescriptor;
 import org.apache.doris.catalog.TableIf;
@@ -29,6 +30,7 @@ import org.apache.doris.common.MetaNotFoundException;
 import org.apache.doris.common.UserException;
 import org.apache.doris.common.util.S3Util;
 import org.apache.doris.datasource.property.constants.PaimonProperties;
+import org.apache.doris.external.paimon.util.PaimonUtils;
 import org.apache.doris.planner.PlanNodeId;
 import org.apache.doris.planner.external.FileQueryScanNode;
 import org.apache.doris.planner.external.TableFormatType;
@@ -44,13 +46,13 @@ import org.apache.doris.thrift.TTableFormatFileDesc;
 import avro.shaded.com.google.common.base.Preconditions;
 import org.apache.hadoop.hive.conf.HiveConf;
 import org.apache.paimon.hive.mapred.PaimonInputSplit;
+import org.apache.paimon.predicate.Predicate;
+import org.apache.paimon.predicate.PredicateBuilder;
 import org.apache.paimon.table.AbstractFileStoreTable;
 import org.apache.paimon.table.source.DataSplit;
 import org.apache.paimon.table.source.ReadBuilder;
-import org.apache.paimon.types.DataField;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -85,12 +87,6 @@ public class PaimonScanNode extends FileQueryScanNode {
         StringBuilder columnNamesBuilder = new StringBuilder();
         StringBuilder columnTypesBuilder = new StringBuilder();
         StringBuilder columnIdsBuilder = new StringBuilder();
-        Map<String, Integer> paimonFieldsId = new HashMap<>();
-        Map<String, String> paimonFieldsName = new HashMap<>();
-        for (DataField field : ((AbstractFileStoreTable) source.getPaimonTable()).schema().fields()) {
-            paimonFieldsId.put(field.name(), field.id());
-            paimonFieldsName.put(field.name(), field.type().toString());
-        }
         boolean isFirst = true;
         for (SlotDescriptor slot : source.getDesc().getSlots()) {
             if (!isFirst) {
@@ -99,8 +95,8 @@ public class PaimonScanNode extends FileQueryScanNode {
                 columnIdsBuilder.append(",");
             }
             columnNamesBuilder.append(slot.getColumn().getName());
-            columnTypesBuilder.append(paimonFieldsName.get(slot.getColumn().getName()));
-            columnIdsBuilder.append(paimonFieldsId.get(slot.getColumn().getName()));
+            columnTypesBuilder.append(source.getPaimonFieldsType().get(slot.getColumn().getName()));
+            columnIdsBuilder.append(source.getPaimonFieldsId().get(slot.getColumn().getName()));
             isFirst = false;
         }
         fileDesc.setPaimonColumnIds(columnIdsBuilder.toString());
@@ -120,6 +116,14 @@ public class PaimonScanNode extends FileQueryScanNode {
     public List<Split> getSplits() throws UserException {
         List<Split> splits = new ArrayList<>();
         ReadBuilder readBuilder = source.getPaimonTable().newReadBuilder();
+        PredicateBuilder builder = new PredicateBuilder(((AbstractFileStoreTable) source.getPaimonTable())
+                                            .schema().logicalRowType());
+        for (Expr conjunct : conjuncts) {
+            Predicate predicate = PaimonUtils.paimonPredicateBuilder(builder, conjunct, source.getPaimonFieldsId());
+            if (predicate != null) {
+                readBuilder.withFilter(predicate);
+            }
+        }
         List<org.apache.paimon.table.source.Split> paimonSplits = readBuilder.newScan().plan().splits();
         for (org.apache.paimon.table.source.Split split : paimonSplits) {
             PaimonInputSplit inputSplit = new PaimonInputSplit(

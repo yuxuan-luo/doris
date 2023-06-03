@@ -25,13 +25,18 @@ import org.apache.doris.datasource.ExternalCatalog;
 import org.apache.doris.planner.ColumnRange;
 import org.apache.doris.thrift.TFileAttributes;
 
+import org.apache.paimon.table.AbstractFileStoreTable;
 import org.apache.paimon.table.Table;
+import org.apache.paimon.types.DataField;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class PaimonSource {
     private final PaimonExternalTable paimonExtTable;
     private final Table originTable;
+    private final Map<String, Integer> paimonFieldsId;
+    private final Map<String, String> paimonFieldsType;
 
     private final TupleDescriptor desc;
 
@@ -40,6 +45,12 @@ public class PaimonSource {
         this.paimonExtTable = table;
         this.originTable = paimonExtTable.getOriginTable();
         this.desc = desc;
+        paimonFieldsId = new HashMap<>();
+        paimonFieldsType = new HashMap<>();
+        for (DataField field : ((AbstractFileStoreTable) originTable).schema().fields()) {
+            paimonFieldsId.put(field.name(), field.id());
+            paimonFieldsType.put(field.name(), field.type().toString());
+        }
     }
 
     public TupleDescriptor getDesc() {
@@ -60,5 +71,13 @@ public class PaimonSource {
 
     public ExternalCatalog getCatalog() {
         return paimonExtTable.getCatalog();
+    }
+
+    public Map<String, Integer> getPaimonFieldsId() {
+        return paimonFieldsId;
+    }
+
+    public Map<String, String> getPaimonFieldsType() {
+        return paimonFieldsType;
     }
 }
