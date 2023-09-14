@@ -1013,7 +1013,7 @@ void DeleteBitmap::merge(const DeleteBitmap& other) {
     std::lock_guard l(lock);
     for (auto& i : other.delete_bitmap) {
         auto [j, succ] = this->delete_bitmap.insert(i);
-        if (!succ) j->second |= i.second;
+        if (!succ) j->second = 0;  // set the bitmap to zero, indicating "not deleted"
     }
 }
 

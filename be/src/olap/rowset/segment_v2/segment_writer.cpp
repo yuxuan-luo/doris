@@ -315,6 +315,101 @@ void SegmentWriter::_serialize_block_to_row_column(vectorized::Block& block) {
                << watch.elapsed_time() / 1000;
 }
 
+// Status SegmentWriter::append_block_with_partial_content(const vectorized::Block* block,
+//                                                         size_t row_pos, size_t num_rows) {
+//     DCHECK(_tablet_schema->keys_type() == UNIQUE_KEYS && _opts.enable_unique_key_merge_on_write);
+//     DCHECK(_opts.rowset_ctx->partial_update_info);
+//     // find missing column cids
+//     const auto& missing_cids = _opts.rowset_ctx->partial_update_info->missing_cids;
+//     const auto& including_cids = _opts.rowset_ctx->partial_update_info->update_cids;
+//     std::vector<uint32_t> key_cids;
+//     std::vector<vectorized::IOlapColumnDataAccessor*> key_columns;
+//     for(uint32_t key_id =0; key_id < _num_key_columns; key_id++) {
+//         auto converted_result = _olap_data_convertor->convert_column_data(key_id);
+//         if (!converted_result.first.ok()) {
+//             return converted_result.first;
+//         }
+//         key_columns.push_back(converted_result.second);
+//         key_cids.push_back(key_id);
+//     }
+
+//     for (size_t block_pos = row_pos; block_pos < row_pos + num_rows; block_pos++) {
+//         // block   segment
+//         //   2   ->   0
+//         //   3   ->   1
+//         //   4   ->   2
+//         //   5   ->   3
+//         // here row_pos = 2, num_rows = 4.
+//         size_t delta_pos = block_pos - row_pos;
+//         size_t segment_pos = segment_start_pos + delta_pos;
+//         std::string key = _full_encode_keys(key_columns, delta_pos);
+//         if (have_input_seq_column) {
+//             _encode_seq_column(seq_column, delta_pos, &key);
+//         }
+//         // If the table have sequence column, and the include-cids don't contain the sequence
+//         // column, we need to update the primary key index builder at the end of this method.
+//         // At that time, we have a valid sequence column to encode the key with seq col.
+//         if (!_tablet_schema->has_sequence_col() || have_input_seq_column) {
+//             RETURN_IF_ERROR(_primary_key_index_builder->add_item(key));
+//         }
+//         _maybe_invalid_row_cache(key);
+//          RowLocation loc;
+//         // save rowset shared ptr so this rowset wouldn't delete
+//         RowsetSharedPtr rowset;
+//         auto st = tablet->lookup_row_key(key, have_input_seq_column, specified_rowsets, &loc,
+//                                          _mow_context->max_version, segment_caches, &rowset);
+//         if (st.is<KEY_NOT_FOUND>()) {
+//             if (_opts.rowset_ctx->partial_update_info->is_strict_mode) {
+//                 ++num_rows_filtered;
+//                 // delete the invalid newly inserted row
+//                 _mow_context->delete_bitmap->add({_opts.rowset_ctx->rowset_id, _segment_id,
+//                                                   DeleteBitmap::TEMP_VERSION_COMMON},
+//                                                  segment_pos);
+//             }
+
+//             if (!_opts.rowset_ctx->partial_update_info->can_insert_new_rows_in_partial_update) {
+//                 return Status::InternalError(
+//                         "the unmentioned columns should have default value or be nullable for "
+//                         "newly inserted rows in non-strict mode partial update");
+//             }
+//             has_default_or_nullable = true;
+//             use_default_or_null_flag.emplace_back(true);
+//             continue;
+//         }
+//         if (!st.ok() && !st.is<KEY_ALREADY_EXISTS>()) {
+//             LOG(WARNING) << "failed to lookup row key, error: " << st;
+//             return st;
+//         }
+        
+//         // if the delete sign is marked, it means that the value columns of the row
+//         // will not be read. So we don't need to read the missing values from the previous rows.
+//         // But we still need to mark the previous row on delete bitmap
+//         if (have_delete_sign) {
+//             has_default_or_nullable = true;
+//             use_default_or_null_flag.emplace_back(true);
+//         } else {
+//             // partial update should not contain invisible columns
+//             use_default_or_null_flag.emplace_back(false);
+//             _rsid_to_rowset.emplace(rowset->rowset_id(), rowset);
+//             tablet->prepare_to_read(loc, segment_pos, &_rssid_to_rid);
+//         }
+//         if (st.is<KEY_ALREADY_EXISTS>()) {
+//             // although we need to mark delete current row, we still need to read missing columns
+//             // for this row, we need to ensure that each column is aligned
+//             _mow_context->delete_bitmap->add(
+//                     {_opts.rowset_ctx->rowset_id, _segment_id, DeleteBitmap::TEMP_VERSION_COMMON},
+//                     segment_pos);
+//         } else {
+//             _mow_context->delete_bitmap->add(
+//                     {loc.rowset_id, loc.segment_id, DeleteBitmap::TEMP_VERSION_COMMON}, loc.row_id);
+//         }
+
+        
+    
+//     }
+
+// }
+
 // for partial update, we should do following steps to fill content of block:
 // 1. set block data to data convertor, and get all key_column's converted slice
 // 2. get pk of input block, and read missing columns
@@ -329,7 +424,7 @@ Status SegmentWriter::append_block_with_partial_content(const vectorized::Block*
         return Status::NotSupported("append_block_with_partial_content");
     }
     auto tablet = static_cast<Tablet*>(_tablet.get());
-    if (block->columns() <= _tablet_schema->num_key_columns() ||
+    if (block->columns() < _tablet_schema->num_key_columns() ||
         block->columns() >= _tablet_schema->num_columns()) {
         return Status::InternalError(
                 fmt::format("illegal partial update block columns: {}, num key columns: {}, total "
@@ -341,7 +436,7 @@ Status SegmentWriter::append_block_with_partial_content(const vectorized::Block*
 
     DCHECK(_opts.rowset_ctx->partial_update_info);
     // find missing column cids
-    const auto& missing_cids = _opts.rowset_ctx->partial_update_info->missing_cids;
+    const auto& missing_cids = _opts.rowset_ctx->partial_update_info->update_cids;
     const auto& including_cids = _opts.rowset_ctx->partial_update_info->update_cids;
 
     // create full block and fill with input columns
@@ -350,7 +445,7 @@ Status SegmentWriter::append_block_with_partial_content(const vectorized::Block*
     for (auto i : including_cids) {
         full_block.replace_by_position(i, block->get_by_position(input_id++).column);
     }
-    _olap_data_convertor->set_source_content_with_specifid_columns(&full_block, row_pos, num_rows,
+    _olap_data_convertor->set_source_content_with_specifid_columns(&full_block, 2, 1,
                                                                    including_cids);
 
     bool have_input_seq_column = false;
@@ -375,7 +470,7 @@ Status SegmentWriter::append_block_with_partial_content(const vectorized::Block*
         }
         RETURN_IF_ERROR(_column_writers[cid]->append(converted_result.second->get_nullmap(),
                                                      converted_result.second->get_data(),
-                                                     num_rows));
+                                                     1));
     }
 
     bool has_default_or_nullable = false;
@@ -503,7 +598,7 @@ Status SegmentWriter::append_block_with_partial_content(const vectorized::Block*
     }
 
     // convert missing columns and send to column writer
-    _olap_data_convertor->set_source_content_with_specifid_columns(&full_block, row_pos, num_rows,
+    _olap_data_convertor->set_source_content_with_specifid_columns(&full_block, 0, 2,
                                                                    missing_cids);
     for (auto cid : missing_cids) {
         auto converted_result = _olap_data_convertor->convert_column_data(cid);
@@ -517,7 +612,7 @@ Status SegmentWriter::append_block_with_partial_content(const vectorized::Block*
         }
         RETURN_IF_ERROR(_column_writers[cid]->append(converted_result.second->get_nullmap(),
                                                      converted_result.second->get_data(),
-                                                     num_rows));
+                                                     2));
     }
 
     _num_rows_filtered += num_rows_filtered;
