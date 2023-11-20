@@ -3038,6 +3038,7 @@ Status Tablet::calc_segment_delete_bitmap(RowsetSharedPtr rowset,
                 if (st.is<OK>() || st.is<KEY_ALREADY_EXISTS>()) {
                     delete_bitmap->add({rowset_id, seg->id(), DeleteBitmap::TEMP_VERSION_COMMON},
                                        row_id);
+                    delete_bitmap->add_ignore({rowset_id, seg->id(), DeleteBitmap::TEMP_VERSION_COMMON});
                 }
             } else {
                 if (st.is<KEY_ALREADY_EXISTS>() && (!is_partial_update || have_input_seq_column)) {
@@ -3487,7 +3488,7 @@ void Tablet::calc_compaction_output_rowset_delete_bitmap(
         for (uint32_t seg_id = 0; seg_id < rowset->num_segments(); ++seg_id) {
             src.segment_id = seg_id;
             DeleteBitmap subset_map(tablet_id());
-            input_delete_bitmap.subset({rowset->rowset_id(), seg_id, start_version},
+            input_delete_bitmap.subset_ignore({rowset->rowset_id(), seg_id, start_version},
                                        {rowset->rowset_id(), seg_id, end_version}, &subset_map);
             // traverse all versions and convert rowid
             for (auto iter = subset_map.delete_bitmap.begin();

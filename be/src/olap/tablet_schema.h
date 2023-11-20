@@ -356,10 +356,10 @@ public:
     }
 
     vectorized::Block create_block_by_cids(const std::vector<uint32_t>& cids);
-        void set_is_unique_key_ignore_mode(bool is_unique_key_ignore_mode) {
-            _is_unique_key_ignore_mode = is_unique_key_ignore_mode;
-        }
-        bool is_unique_key_ignore_mode() const { return _is_unique_key_ignore_mode; }
+    void set_is_unique_key_ignore_mode(bool is_unique_key_ignore_mode) {
+        _is_unique_key_ignore_mode = is_unique_key_ignore_mode;
+    }
+    bool is_unique_key_ignore_mode() const { return _is_unique_key_ignore_mode; }
 
 private:
     friend bool operator==(const TabletSchema& a, const TabletSchema& b);
