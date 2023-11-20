@@ -84,6 +84,7 @@ public class StreamLoadTask implements LoadTaskInfo {
     private List<String> hiddenColumns;
     private boolean trimDoubleQuotes = false;
     private boolean isPartialUpdate = false;
+    private boolean isIgnoreMode = false;
 
     private int skipLines = 0;
     private boolean enableProfile = false;
@@ -309,6 +310,10 @@ public class StreamLoadTask implements LoadTaskInfo {
         this.memtableOnSinkNode = memtableOnSinkNode;
     }
 
+    public boolean isIgnoreMode() {
+        return isIgnoreMode;
+    }
+
     public static StreamLoadTask fromTStreamLoadPutRequest(TStreamLoadPutRequest request) throws UserException {
         StreamLoadTask streamLoadTask = new StreamLoadTask(request.getLoadId(), request.getTxnId(),
                 request.getFileType(), request.getFormatType(),
@@ -446,6 +451,9 @@ public class StreamLoadTask implements LoadTaskInfo {
         }
         if (request.isSetMemtableOnSinkNode()) {
             this.memtableOnSinkNode = request.isMemtableOnSinkNode();
+        }
+        if (request.isSetIgnoreMode()) {
+            isIgnoreMode = request.isIgnoreMode();
         }
     }
 
