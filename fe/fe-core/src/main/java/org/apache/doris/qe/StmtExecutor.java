@@ -715,6 +715,7 @@ public class StmtExecutor {
                 } finally {
                     queryAnalysisSpan.end();
                 }
+                LOG.warn("ObserverHost isForwardToMaster" + isForwardToMaster());
                 if (isForwardToMaster()) {
                     if (context.getCommand() == MysqlCommand.COM_STMT_PREPARE) {
                         throw new UserException("Forward master command is not supported for prepare statement");
@@ -727,6 +728,7 @@ public class StmtExecutor {
                                 + Env.getCurrentEnv().getSelfNode().getHost() + ") and failed to execute"
                                 + " because Master FE is not ready. You may need to check FE's status");
                     }
+                    LOG.warn("ObserverHost forwardToMaster");
                     forwardToMaster();
                     if (masterOpExecutor != null && masterOpExecutor.getQueryId() != null) {
                         context.setQueryId(masterOpExecutor.getQueryId());

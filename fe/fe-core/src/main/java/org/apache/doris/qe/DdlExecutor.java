@@ -239,6 +239,7 @@ public class DdlExecutor {
         } else if (ddlStmt instanceof AdminCompactTableStmt) {
             env.compactTable((AdminCompactTableStmt) ddlStmt);
         } else if (ddlStmt instanceof AdminSetConfigStmt) {
+            LOG.warn("Observer AdminSetConfigStmt" + ddlStmt);
             env.setConfig((AdminSetConfigStmt) ddlStmt);
         } else if (ddlStmt instanceof CreateFileStmt) {
             env.getSmallFileMgr().createFile((CreateFileStmt) ddlStmt);

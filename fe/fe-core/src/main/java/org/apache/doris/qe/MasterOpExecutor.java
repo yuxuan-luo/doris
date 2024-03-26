@@ -109,8 +109,10 @@ public class MasterOpExecutor {
         if (!ctx.getEnv().isReady()) {
             throw new Exception("Node catalog is not ready, please wait for a while.");
         }
-        String masterHost = ctx.getEnv().getMasterHost();
-        int masterRpcPort = ctx.getEnv().getMasterRpcPort();
+        String masterHost = ctx.getEnv().getObserverHost();
+        int masterRpcPort = ctx.getEnv().getObserverRpcPort();
+        LOG.warn("ObserverHost" + masterHost + "ObserverRpcPort" + masterRpcPort);
+        LOG.warn("ObserverHost sql" + params.sql);
         TNetworkAddress thriftAddress = new TNetworkAddress(masterHost, masterRpcPort);
 
         FrontendService.Client client;

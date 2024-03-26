@@ -52,7 +52,7 @@ public class AdminSetConfigStmt extends DdlStmt {
 
         // we have to analyze configs here to determine whether to forward it to master
         for (String key : this.configs.keySet()) {
-            if (ConfigBase.checkIsMasterOnly(key)) {
+            if (!ConfigBase.checkIsMasterOnly(key)) {
                 redirectStatus = RedirectStatus.FORWARD_NO_SYNC;
             }
         }
