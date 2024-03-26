@@ -1549,7 +1549,7 @@ public class Env {
     private void transferToNonMaster(FrontendNodeType newType) {
         isReady.set(false);
 
-        if (feType == OBSERVER || feType == FrontendNodeType.FOLLOWER) {
+        if (feType == FrontendNodeType.OBSERVER || feType == FrontendNodeType.FOLLOWER) {
             Preconditions.checkState(newType == FrontendNodeType.UNKNOWN);
             LOG.warn("{} to UNKNOWN, still offer read service", feType.name());
             // not set canRead here, leave canRead as what is was.
